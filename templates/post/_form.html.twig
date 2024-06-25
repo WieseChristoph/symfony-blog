@@ -1,0 +1,21 @@
+{{ form_start(postForm) }}
+    <div class="flex flex-col gap-3">
+        <div class="flex flex-col">
+            {{ form_label(postForm.title) }}
+            <span class="text-black">{{ form_widget(postForm.title) }}</span>
+        </div>
+        <div class="flex flex-col">
+            {{ form_label(postForm.content) }}
+            <span class="text-black">{{ form_widget(postForm.content) }}</span>
+        </div>
+    
+        {{ form_rest(postForm) }}
+
+        <div>
+            <input type="submit" value="{{ button_label|default('Save') }}" class="py-1 w-full border border-red-900 text-lg hover:text-red-900 hover:cursor-pointer" />
+        </div>
+
+        <span class="text-red-600">{{ form_errors(postForm) }}</span>
+    </div>
+{{ form_end(postForm) }}
+

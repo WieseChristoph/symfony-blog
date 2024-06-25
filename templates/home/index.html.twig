@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Home | Blog{% endblock %}
+
+{% block body %}
+    <main class="p-5 w-full">
+        {% if app.user %}
+            <div class="mb-5">
+                <a href="{{ path('app_post_new') }}" class="px-3 py-1 border border-red-900 text-lg hover:text-red-900 hover:cursor-pointer">Create new post</a>
+            </div>
+        {% endif %}
+        <div class="flex flex-wrap gap-5">
+            {% for post in posts %}
+                <a  href="{{ path("app_post_show", {"id": post.id}) }}" class="p-5 2xl:w-[24%] lg:w-[49%] w-full border-red-900 border rounded-md bg-gradient-to-r from-zinc-900 to-red-900">
+                    <h1 class="font-bold text-xl">{{ post.title }}</h1>
+                    <div class="flex flex-row items-center gap-1 text-sm">
+                        {{ include("misc/_avatar.html.twig", { 'user': post.user, 'width': 24, 'height': 24 }) }}
+                        <span>{{ post.user.name }} ●︎ {{ post.createdAt|date("d.m.Y h:m:s") }}</span>
+                    </div>
+                </a>
+            {% else %}
+                <span>No posts found</span>
+            {% endfor %}
+        </div>
+    </main>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Post | Blog{% endblock %}
+
+{% block body %}
+    <main class="flex flex-col justify-center items-center w-full p-5">
+        <a href="{{ path('app_home') }}"><- Back to list</a>
+
+        {{ include('post/_form.html.twig', {'button_label': 'Create'}) }}
+    </main>
+{% endblock %}

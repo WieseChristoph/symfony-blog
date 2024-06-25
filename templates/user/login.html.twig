@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Login | Blog{% endblock %}
+
+{% block body %}
+    <main class="flex justify-center items-center w-full p-5">
+        <form method="POST" class="flex flex-col gap-3">
+            <div class="flex flex-col">
+                <label for="_username">E-Mail</label>
+                <input type="email" name="_username" id="username" placeholder="E-Mail" class="text-black" value="{{ last_username }}" required />
+            </div>
+            <div class="flex flex-col">
+                <label for="_password">Password</label>
+                <input type="password" name="_password" id="password" placeholder="Password" class="text-black" autocomplete="current-password" required />
+            </div>
+            <div class="flex flex-row justify-between">
+                <label for="_remember_me">Remember me</label>
+                <input type="checkbox" name="_remember_me" id="_remember_me">
+            </div>
+
+            <input type="hidden" name="_csrf_token"
+                value="{{ csrf_token('authenticate') }}"
+            >
+
+            <div>
+                <input type="submit" value="Submit" class="py-1 w-full border border-red-900 text-lg hover:text-red-900 hover:cursor-pointer" />
+            </div>
+            
+            {% if error %}
+                <span class="text-red-600">{{ error.messageKey|trans(error.messageData, 'security') }}</span>
+            {% endif %}
+        </form>
+    </main>
+{% endblock %}
