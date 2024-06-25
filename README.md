@@ -46,4 +46,4 @@ For testing purposes, there are two routes that change the current user's role.
 
 ### Dashboard
 
-![Dashboard](.github/screenshots/post.png)
+![Dashboard](.github/screenshots/dashboard.png)
