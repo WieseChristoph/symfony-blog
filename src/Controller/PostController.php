@@ -12,10 +12,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/post')]
+#[Route('/post', name: "app_post_")]
 class PostController extends AbstractController
 {
-    #[Route('/new', name: 'app_post_new', methods: ['GET', 'POST'])]
+    #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
     #[IsGranted("IS_AUTHENTICATED")]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
@@ -38,7 +38,7 @@ class PostController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_post_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'show', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function show(Post $post): Response
     {
         return $this->render('post/show.html.twig', [
@@ -46,7 +46,7 @@ class PostController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_post_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     #[IsGranted("IS_AUTHENTICATED")]
     public function edit(Request $request, Post $post, EntityManagerInterface $entityManager): Response
     {
@@ -71,7 +71,7 @@ class PostController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/delete', name: 'app_post_delete', methods: ['POST'])]
+    #[Route('/{id}/delete', name: 'delete', methods: ['POST'], requirements: ['id' => '\d+'])]
     #[IsGranted("IS_AUTHENTICATED")]
     public function delete(Request $request, Post $post, EntityManagerInterface $entityManager): Response
     {

@@ -15,9 +15,10 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
+#[Route(name: "app_user_")]
 class UserController extends AbstractController
 {
-    #[Route("/register", name: 'app_user_register', methods: ['GET', 'POST'])]
+    #[Route("/register", name: 'register', methods: ['GET', 'POST'])]
     public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager, string $avatarDirectory): Response
     {
         $user = new User();
@@ -59,7 +60,7 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route("/login", name: 'app_user_login', methods: ['GET', 'POST'])]
+    #[Route("/login", name: 'login', methods: ['GET', 'POST'])]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
         // get the login error if there is one
@@ -74,13 +75,13 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/logout', name: 'app_user_logout')]
+    #[Route(path: '/logout', name: 'logout')]
     public function logout(): void
     {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 
-    #[Route("/{id}/delete", name: 'app_user_delete', methods: ['POST'])]
+    #[Route("/{id}/delete", name: 'delete', methods: ['POST'], requirements: ['id' => '\d+'])]
     #[IsGranted("ROLE_ADMIN")]
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
@@ -93,7 +94,7 @@ class UserController extends AbstractController
         return $this->redirect($referer);
     }
 
-    #[Route("/makeMeAdmin", name: 'app_user_makemeadmin', methods: ['GET'])]
+    #[Route("/makeMeAdmin", name: 'makemeadmin', methods: ['GET'])]
     #[IsGranted("IS_AUTHENTICATED")]
     public function makeMeAdmin(EntityManagerInterface $entityManager): Response
     {
@@ -106,7 +107,7 @@ class UserController extends AbstractController
         return $this->redirectToRoute("app_user_login");
     }
 
-    #[Route("/makeMeUser", name: 'app_user_makemeuser', methods: ['GET'])]
+    #[Route("/makeMeUser", name: 'makemeuser', methods: ['GET'])]
     #[IsGranted("IS_AUTHENTICATED")]
     public function makeMeUser(EntityManagerInterface $entityManager): Response
     {

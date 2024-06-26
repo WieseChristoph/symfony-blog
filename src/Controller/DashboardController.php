@@ -10,11 +10,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route("/dashboard")]
+#[Route("/dashboard", name: "app_dashboard_")]
 #[IsGranted('ROLE_ADMIN')]
 class DashboardController extends AbstractController
 {
-    #[Route('/users', name: 'app_dashboard_users', methods: ['GET'])]
+    #[Route('/users', name: 'users', methods: ['GET'])]
     public function users(UserRepository $userRepository): Response
     {
         return $this->render('dashboard/users.html.twig', [
@@ -22,7 +22,7 @@ class DashboardController extends AbstractController
         ]);
     }
 
-    #[Route('/posts', name: 'app_dashboard_posts', methods: ['GET'])]
+    #[Route('/posts', name: 'posts', methods: ['GET'])]
     public function posts(PostRepository $postRepository): Response
     {
         return $this->render('dashboard/posts.html.twig', [
@@ -30,7 +30,7 @@ class DashboardController extends AbstractController
         ]);
     }
 
-    #[Route('/comments', name: 'app_dashboard_comments', methods: ['GET'])]
+    #[Route('/comments', name: 'comments', methods: ['GET'])]
     public function comments(CommentRepository $commentRepository): Response
     {
         return $this->render('dashboard/comments.html.twig', [

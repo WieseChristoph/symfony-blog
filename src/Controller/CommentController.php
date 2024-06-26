@@ -13,11 +13,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/post/{post_id}/comment')]
+#[Route('/post/{post_id}/comment', name: "app_comment_", requirements: ['post_id' => '\d+'])]
 #[IsGranted("IS_AUTHENTICATED")]
 class CommentController extends AbstractController
 {
-    #[Route('/new', name: 'app_comment_new', methods: ['POST'])]
+    #[Route('/new', name: 'new', methods: ['POST'])]
     public function new(Request $request, #[MapEntity(mapping: ['post_id' => 'id'])] Post $post, EntityManagerInterface $entityManager): Response
     {
         /** @var User $user */
@@ -36,7 +36,7 @@ class CommentController extends AbstractController
         return $this->redirectToRoute('app_post_show', ["id" => $post->getId()], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/{id}', name: 'app_comment_delete', methods: ['POST'])]
+    #[Route('/{id}', name: 'delete', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function delete(Request $request, Comment $comment, EntityManagerInterface $entityManager): Response
     {
         /** @var User $user */
