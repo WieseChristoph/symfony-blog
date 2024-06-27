@@ -9,6 +9,9 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -230,5 +233,53 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function isAdmin(): bool
     {
         return in_array("ROLE_ADMIN", $this->roles);
+    }
+
+    public function setAdmin(bool $admin): void
+    {
+        if ($admin && !$this->isAdmin()) {
+            $this->setRoles(array("ROLE_ADMIN"));
+        } else if (!$admin && $this->isAdmin()) {
+             $this->setRoles(array());
+        }
+    }
+
+    /**
+     * @throws IOException When deletion of existing avatar or saving of the new one fails
+     */
+    public function saveAvatar(string $avatarDirectory, UploadedFile $avatarFile): void
+    {
+        try {
+            $this->deleteAvatar($avatarDirectory);
+        } catch (IOException $e) {
+            throw $e;
+        }
+
+        $avatarFilename = "avatar_" . uniqid() . "." . $avatarFile->guessExtension();
+
+        try {
+             $avatarFile->move($avatarDirectory, $avatarFilename);
+        } catch (IOException $e) {
+            throw $e;
+        }
+
+        $this->setAvatarFilename($avatarFilename);
+    }
+
+    /**
+     * @throws IOException When deletion fails
+     */
+    public function deleteAvatar(string $avatarDirectory): void
+    {
+        if (!empty($this->getAvatarFilename())) {
+            $filesystem = new Filesystem();
+            try {
+                $filesystem->remove($avatarDirectory . "/" . $this->getAvatarFilename());
+            } catch (IOException $e) {
+                throw $e;
+            }
+
+            $this->setAvatarFilename(null);
+        }
     }
 }

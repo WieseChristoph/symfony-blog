@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% set user = user|default(app.user) %}
+
+{% block title %}{{ user.name }} | Blog{% endblock %}
+
+{% block body %}
+    <main class="flex justify-center items-center w-full p-5">
+        {{ form_start(userEditForm) }}
+            <div class="flex flex-col gap-3">
+                <div class="flex flex-col">
+                    {{ form_label(userEditForm.avatar) }}
+                    <span class="text-white">{{ form_widget(userEditForm.avatar) }}</span>
+                    <span class="text-red-600">{{ form_errors(userEditForm.avatar) }}</span>
+                </div>
+                <div class="flex flex-row justify-between">
+                        {{ form_label(userEditForm.deleteAvatar) }}
+                        {{ form_widget(userEditForm.deleteAvatar) }}
+                        <span class="text-red-600">{{ form_errors(userEditForm.deleteAvatar) }}</span>
+                    </div>
+                <div class="flex flex-col">
+                    {{ form_label(userEditForm.email) }}
+                    <span class="text-black">{{ form_widget(userEditForm.email) }}</span>
+                    <span class="text-red-600">{{ form_errors(userEditForm.email) }}</span>
+                </div>
+                <div class="flex flex-col">
+                    {{ form_label(userEditForm.name) }}
+                    <span class="text-black">{{ form_widget(userEditForm.name) }}</span>
+                    <span class="text-red-600">{{ form_errors(userEditForm.name) }}</span>
+                </div>
+                <div class="flex flex-col">
+                    {{ form_label(userEditForm.plainPassword, "Password") }}
+                    <span class="text-black">{{ form_widget(userEditForm.plainPassword) }}</span>
+                    <span class="text-red-600">{{ form_errors(userEditForm.plainPassword) }}</span>
+                </div>
+                {% if is_granted("ROLE_ADMIN") %}
+                    <div class="flex flex-row justify-between">
+                        {{ form_label(userEditForm.isAdmin) }}
+                        {{ form_widget(userEditForm.isAdmin) }}
+                        <span class="text-red-600">{{ form_errors(userEditForm.isAdmin) }}</span>
+                    </div>
+                {% endif %}
+                
+                {{ form_rest(userEditForm) }}
+
+                <div>
+                    <input type="submit" value="Update" class="py-1 w-full border border-red-900 text-lg hover:text-red-900 hover:cursor-pointer" />
+                </div>
+            </div>
+        {{ form_end(userEditForm) }}
+
+        {% for message in app.flashes('error') %}
+            <span class="text-red-600">
+                {{ message }}
+            </span>
+        {% endfor %}
+    </main>
+{% endblock %}

@@ -3,9 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Form\EditUserFormType;
 use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -81,7 +83,64 @@ class UserController extends AbstractController
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 
-    #[Route("/{id}/delete", name: 'delete', methods: ['POST'], requirements: ['id' => '\d+'])]
+    #[Route(path: "/user/{id}/edit", name: "edit", methods: ["GET", "POST"], requirements: ['id' => '\d+'])]
+    #[IsGranted("IS_AUTHENTICATED")]
+    public function edit(Request $request, User $user, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager, string $avatarDirectory): Response
+    {
+        /** @var User $authUser */
+        $authUser = $this->getUser();
+        if ($authUser !== $user && !$authUser->isAdmin())
+            throw $this->createAccessDeniedException();
+
+        $form = $this->createForm(EditUserFormType::class, $user, ['show_is_admin' => $authUser->isAdmin(), 'is_admin' => $user->isAdmin()]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $plainPassword = $form->get('plainPassword')->getData();
+            if (!empty($plainPassword)) {
+                $user->setPassword(
+                    $userPasswordHasher->hashPassword(
+                        $user,
+                        $plainPassword
+                    )
+                );
+            }
+
+            if ($authUser->isAdmin()) {
+                $user->setAdmin($form->get('isAdmin')->getData());
+            }
+
+            /** @var UploadedFile $avatarFile */
+            $avatarFile = $form->get('avatar')->getData();
+            if ($form->get('deleteAvatar')->getData()) {
+                try {
+                    $user->deleteAvatar($avatarDirectory);
+                } catch (IOException $e) {
+                    $this->addFlash('error', $e->getMessage());
+                    return $this->redirectToRoute('app_user_edit', ['id' => $user->getId()]);
+                }
+            } else if ($avatarFile) {
+                try {
+                    $user->saveAvatar($avatarDirectory, $avatarFile);
+                } catch (FileException $e) {
+                    $this->addFlash('error', $e->getMessage());
+                    return $this->redirectToRoute('app_user_edit', ['id' => $user->getId()]);
+                }
+            }
+
+            $entityManager->flush();
+
+            return  $this->redirectToRoute('app_user_edit', ['id' => $user->getId()]);
+        }
+
+        return $this->render('user/edit.html.twig', [
+            'userEditForm' => $form,
+            'user' => $user
+        ]);
+    }
+
+
+    #[Route("/user/{id}/delete", name: 'delete', methods: ['POST'], requirements: ['id' => '\d+'])]
     #[IsGranted("ROLE_ADMIN")]
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
@@ -100,7 +159,7 @@ class UserController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
-        $user->setRoles(array("ROLE_ADMIN"));
+        $user->setAdmin(true);
 
         $entityManager->flush();
 
@@ -113,7 +172,7 @@ class UserController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
-        $user->setRoles(array());
+        $user->setAdmin(false);
 
         $entityManager->flush();
 
